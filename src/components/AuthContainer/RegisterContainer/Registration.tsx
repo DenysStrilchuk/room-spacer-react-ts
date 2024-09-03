@@ -8,6 +8,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { ClipLoader } from 'react-spinners';
 import { authActions, selectIsRegistered } from "../../../store";
 import { RootState } from "../../../types/reduxType";
+import {registrationSchema} from "../../../validators/validationSchema";
 
 interface IFormErrors {
     name?: string;
@@ -36,20 +37,21 @@ const Registration: React.FC = () => {
     const [googleLoading, setGoogleLoading] = useState(false);
 
     const validateForm = () => {
-        const newErrors: IFormErrors = {};
-        if (name.length < 3) {
-            newErrors.name = 'Name must be at least 3 characters long';
+        const { error } = registrationSchema.validate(
+            { name, email, password, confirmPassword, agreeToTerms },
+            { abortEarly: false }
+        );
+        if (error) {
+            const newErrors: IFormErrors = {};
+            error.details.forEach((err) => {
+                const key = err.path[0] as string; // Cast to string
+                if (key in newErrors) { // Ensure the key exists in IFormErrors
+                    newErrors[key as keyof IFormErrors] = err.message;
+                }
+            });
+            return newErrors;
         }
-        if (!/\W/.test(password) || password.length < 8) {
-            newErrors.password = 'Password must be at least 8 characters long and contain at least one special character';
-        }
-        if (password !== confirmPassword) {
-            newErrors.confirmPassword = 'Passwords do not match';
-        }
-        if (!agreeToTerms) {
-            newErrors.global = 'You must agree to the terms and policies';
-        }
-        return newErrors;
+        return {};
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
