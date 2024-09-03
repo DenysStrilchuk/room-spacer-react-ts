@@ -20,7 +20,7 @@ interface IFormErrors {
 
 const Registration: React.FC = () => {
     const dispatch = useAppDispatch();
-    const isRegistered = useSelector(selectIsRegistered);
+    const isRegistered = useSelector(selectIsRegistered); // Використання селектора
     const { error } = useSelector((state: RootState) => state.auth);
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -44,8 +44,8 @@ const Registration: React.FC = () => {
         if (error) {
             const newErrors: IFormErrors = {};
             error.details.forEach((err) => {
-                const key = err.path[0] as string;
-                if (key in newErrors) {
+                const key = err.path[0] as string; // Cast to string
+                if (key in newErrors) { // Ensure the key exists in IFormErrors
                     newErrors[key as keyof IFormErrors] = err.message;
                 }
             });
@@ -73,8 +73,12 @@ const Registration: React.FC = () => {
                 setShowConfirmationMessage(true);
             }
         } catch (err: any) {
-            console.error('Error during registration:', err);
-            setFormErrors({ global: err.message || 'Registration failed' });
+            if (err.message === 'Please verify your email before proceeding.') {
+                setShowConfirmationMessage(true);
+            } else {
+                console.error('Error during registration:', err);
+                setFormErrors({ global: err.message || 'Registration failed' });
+            }
         } finally {
             setLoading(false);
         }
@@ -216,6 +220,8 @@ const Registration: React.FC = () => {
                         disabled={googleLoading || !agreeToTerms}
                     >
                         <div className={css.loadingContainer}>
+
+
                             <img src={"https://img.icons8.com/?size=100&id=17949&format=png&color=000000"}
                                  alt={'googleIcon'} className={css.googleIcon}/>
                             {googleLoading ? (
@@ -240,18 +246,14 @@ const Registration: React.FC = () => {
                 <div className={css.modal}>
                     <div className={css.modalContent}>
                         <h2>Registration Successful</h2>
-                        {registrationType === 'google' ? (
-                            <p>
-                                Please check your email to verify your Google account.
-                                If your email is already verified, you can proceed to log in.
-                            </p>
+                        {registrationType === 'normal' ? (
+                            <p>Please check your email to confirm your registration.</p>
                         ) : (
-                            <p>
-                                We have sent you an email to verify your account.
-                                Please check your inbox and verify your email to continue.
-                            </p>
+                            <p>You have successfully registered with Google. You can now log in.</p>
                         )}
-                        <button onClick={handleCloseModal} className={css.modalButton}>OK</button>
+                        <button className={css.closeModalButton} onClick={handleCloseModal}>
+                            Close
+                        </button>
                     </div>
                 </div>
             )}
@@ -259,4 +261,4 @@ const Registration: React.FC = () => {
     );
 };
 
-export {Registration};
+export { Registration };
