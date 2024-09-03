@@ -1,0 +1,307 @@
+.registerContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #f4f4f4;
+}
+
+.registerForm {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 400px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.registerForm h2 {
+    margin-bottom: 1.5rem;
+    text-align: left;
+    font-family: 'Arial', sans-serif;
+    color: rgb(51, 51, 51);
+    width: 100%;
+}
+
+.inputContainer {
+    position: relative;
+    margin-bottom: 2rem; /* Збільшено відступ знизу */
+    width: 100%;
+}
+
+.registerInput {
+    width: 100%;
+    height: 45px;
+    padding: 0.5rem 2.5rem;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1rem;
+    box-sizing: border-box;
+}
+
+.registerInput:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+    outline: none;
+}
+
+.icon {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #888;
+}
+
+.togglePassword {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #888;
+}
+
+.registerButton {
+    width: 100%;
+    padding: 0.75rem 2.5rem;
+    border: none;
+    border-radius: 5px;
+    background-color: rgb(70, 77, 97);
+    color: white;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    box-sizing: border-box;
+    margin-top: 2rem; /* Збільшено відступ зверху */
+}
+
+.registerButton:disabled {
+    background-color: #ccc;
+}
+
+.errorText {
+    color: red;
+    font-size: 0.875rem;
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+    width: 100%;
+    text-align: left;
+    font-family: 'Arial', sans-serif;
+}
+
+.modalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.confirmationMessage {
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    max-width: 400px;
+    margin: 0 auto;
+    opacity: 0;
+    transform: translateY(-20px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.confirmationMessage.fadeIn {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.confirmationMessage h2 {
+    margin-bottom: 1rem;
+    color: green;
+    font-family: 'Arial', sans-serif;
+}
+
+.confirmationMessage p {
+    margin-bottom: 1.5rem;
+    color: #666;
+    font-family: 'Arial', sans-serif;
+}
+
+.modalButton {
+    background: rgb(70, 77, 97);
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    padding: 10px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.modalButton:hover {
+    background-color: rgb(71, 76, 99);
+}
+
+.checkboxContainer {
+    display: flex;
+    align-items: center; /* Вирівнювання по центру вертикально */
+    justify-content: flex-start;
+    width: 100%;
+    margin-top: 0.1rem; /* Відступ від попереднього інпута */
+    margin-bottom: 0.1rem; /* Відступ до кнопки */
+    position: relative;
+}
+
+.checkboxInput {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.checkboxLabel {
+    font-size: 0.875rem;
+    color: #666;
+    padding-left: 35px; /* Відступ для розміщення кастомного чекбоксу */
+    cursor: pointer;
+    user-select: none;
+    display: flex;
+    align-items: center; /* Вирівнювання тексту по центру вертикально */
+    font-family: 'Arial', sans-serif;
+}
+
+/* Стилізація кастомного чекбоксу */
+.checkboxLabel::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%); /* Центрування чекбоксу по вертикалі */
+    width: 18px; /* Розмір чекбоксу */
+    height: 18px;
+    border: 3px solid rgb(70, 77, 97); /* Колір ободка */
+    border-radius: 8px; /* Заокруглені кути */
+    background-color: transparent;
+    transition: background-color 0.3s ease-in-out;
+}
+
+/* Вигляд при вибраному чекбоксі */
+.checkboxInput:checked + .checkboxLabel::before {
+    background-color: rgb(70, 77, 97); /* Колір фону при виборі */
+}
+
+/* Додавання галочки */
+.checkboxInput:checked + .checkboxLabel::after {
+    content: "";
+    position: absolute;
+    left: 12px;
+    top: 40%; /* Вирівнювання по центру */
+    transform: translate(-50%, -50%) rotate(45deg);
+    width: 6px;
+    height: 12px;
+    border: solid white;
+    border-width: 0 3px 3px 0;
+}
+
+.checkboxLabel .link {
+    margin: 0 2px; /* Додає невеликий відступ між посиланнями */
+}
+
+.link {
+    color: rgb(70, 77, 97);
+    text-decoration: none;
+    font-weight: bold;
+    font-family: 'Arial', sans-serif;
+}
+
+.link:hover {
+    text-decoration: underline;
+}
+
+.divider {
+    display: flex;
+    align-items: center;
+    font-family: 'Arial', sans-serif;
+    color: rgb(119, 124, 138);
+    width: 100%;
+    margin: 20px 0;
+}
+
+.line {
+    flex-grow: 1;
+    height: 1px;
+    background-color: #ccc;
+}
+
+.orText {
+    margin: 0 10px;
+    font-size: 14px;
+    color: #888;
+    white-space: nowrap;
+}
+
+.googleButtonContainer {
+    width: 100%; /* Забезпечує ширину контейнера */
+}
+
+.googleButton {
+    width: 100%; /* Makes the button full width */
+    display: flex;
+    align-items: center;
+    justify-content: center; /* Centers the text and icon together */
+    background-color: #fff;
+    color: rgb(70,77,97);
+    font-family: 'Arial', sans-serif;
+    border: 2px solid rgb(191,193,196);
+    padding: 0.75rem 2.5rem;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    box-sizing: border-box; /* Ensures proper padding calculation */
+    position: relative; /* Enables positioning of the icon */
+}
+
+.googleIcon {
+    position: absolute; /* Allows free positioning within the button */
+    left: 20px; /* Positions the icon 16px from the left edge of the button */
+    width: 30px;
+}
+
+.signInContainer {
+    text-align: center;
+    margin-top: 1.5rem;
+}
+
+.haveAccountText {
+    font-family: 'Arial', sans-serif;
+    color: rgb(119, 124, 138);
+    margin-bottom: 1.5rem;
+}
+
+.signInLink {
+    font-family: 'Arial', sans-serif;
+    color: rgb(70, 77, 97);
+    text-decoration: none;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.signInLink:hover {
+    text-decoration: underline;
+}
+
+.loadingContainer {
+    display: flex;
+    align-items: center; /* Vertically center the spinner and text */
+    justify-content: center;
+}
+
+.loadingContainer span {
+    margin-right: 8px; /* Space between the text and spinner */
+}
+
