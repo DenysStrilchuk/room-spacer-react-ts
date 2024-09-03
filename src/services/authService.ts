@@ -25,7 +25,7 @@ const authService = {
         await setDoc(userDoc, {
             email: email,
             name: name,
-            role: 'User',
+            role: 'Owner',
         });
 
         return userCredential.user;
