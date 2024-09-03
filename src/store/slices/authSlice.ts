@@ -1,9 +1,10 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { authService } from "../../services/authService";
 import { RootState } from "../../types/reduxType";
+import {IUser} from "../../intterfaces/userInterface";
 
 export interface AuthState {
-    user: any;
+    user: IUser | null;
     status: 'idle' | 'loading' | 'succeeded' | 'failed';
     error: string | null;
     isRegistered: boolean;
@@ -29,17 +30,37 @@ const signUp = createAsyncThunk('auth/signUp', async ({ email, password, name }:
     return user;
 });
 
-const login = createAsyncThunk('auth/login', ({ email, password }: { email: string; password: string }) => {
-    return authService.loginWithEmail(email, password);
-});
+const login = createAsyncThunk(
+    'auth/login',
+    async ({ email, password }: { email: string; password: string }): Promise<IUser> => {
+        const userCredential = await authService.loginWithEmail(email, password);
+        const user = userCredential.user;
+
+        if (!user.email) {
+            throw new Error('Email is null');
+        }
+        return {
+            uid: user.uid,
+            email: user.email,
+        };
+    }
+);
 
 const checkIfRegistered = createAsyncThunk('auth/checkIfRegistered', async (email: string) => {
     return await authService.checkIfRegistered(email); // Логіка перевірки реєстрації
 });
 
-const loginGoogle = createAsyncThunk('auth/loginGoogle', () => {
-    return authService.loginWithGoogle();
-});
+const loginGoogle = createAsyncThunk(
+    'auth/loginGoogle',
+    async (): Promise<IUser> => {
+        const userCredential = await authService.loginWithGoogle();
+        const user = userCredential.user;
+        return {
+            uid: user.uid,
+            email: user.email,
+        };
+    }
+);
 
 const logoutUser = createAsyncThunk('auth/logout', () => {
     return authService.logout();
@@ -56,6 +77,7 @@ const authSlice = createSlice({
     reducers: {},
     extraReducers: (builder) => {
         builder
+            // signUp
             .addCase(signUp.pending, (state) => {
                 state.status = 'loading';
             })
@@ -68,6 +90,7 @@ const authSlice = createSlice({
                 state.status = 'failed';
                 state.error = action.error.message || null;
             })
+            // login
             .addCase(login.pending, (state) => {
                 state.status = 'loading';
             })
@@ -79,6 +102,7 @@ const authSlice = createSlice({
                 state.status = 'failed';
                 state.error = action.error.message || null;
             })
+            // loginGoogle
             .addCase(loginGoogle.pending, (state) => {
                 state.status = 'loading';
             })
@@ -90,10 +114,12 @@ const authSlice = createSlice({
                 state.status = 'failed';
                 state.error = action.error.message || null;
             })
+            // logoutUser
             .addCase(logoutUser.fulfilled, (state) => {
                 state.user = null;
                 state.status = 'idle';
             })
+            // forgotPassword
             .addCase(forgotPassword.pending, (state) => {
                 state.status = 'loading';
             })
@@ -104,6 +130,7 @@ const authSlice = createSlice({
                 state.status = 'failed';
                 state.error = action.error.message || null;
             })
+            // checkIfRegistered
             .addCase(checkIfRegistered.fulfilled, (state, action) => {
                 state.isRegistered = action.payload;
             })

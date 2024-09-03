@@ -6,7 +6,8 @@ import {
     signInWithPopup,
     signOut,
     sendPasswordResetEmail as firebaseSendPasswordResetEmail,
-    sendEmailVerification
+    sendEmailVerification,
+    UserCredential
 } from 'firebase/auth';
 import {
     setDoc,
@@ -34,7 +35,7 @@ const authService = {
         return signInWithEmailAndPassword(auth, email, password);
     },
 
-    loginWithGoogle: async () => {
+    loginWithGoogle: async (): Promise<UserCredential>  => {
         const provider = new GoogleAuthProvider();
         const result = await signInWithPopup(auth, provider);
         const userDoc = doc(db, 'users', result.user.uid);
@@ -49,7 +50,7 @@ const authService = {
             });
         }
 
-        return result.user;
+        return result;
     },
 
     logout: () => {
