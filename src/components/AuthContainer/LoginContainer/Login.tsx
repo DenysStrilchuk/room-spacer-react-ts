@@ -58,7 +58,7 @@ const Login: React.FC = () => {
 
     useEffect(() => {
         if (isLogin) {
-            navigate('/');
+            navigate('/group/:id');
         }
     }, [isLogin, navigate]);
 
