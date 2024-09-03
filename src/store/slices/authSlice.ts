@@ -1,5 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import {loginWithEmail, loginWithGoogle, logout, signUpWithEmail} from "../../services/authService";
+import {authService} from "../../services/authService";
+import {RootState} from "../../types/reduxType";
+
 
 export interface AuthState {
     user: any;
@@ -13,23 +15,31 @@ const initialState: AuthState = {
     error: null,
 };
 
-export const signUp = createAsyncThunk('auth/signUp', async ({ email, password }: { email: string; password: string }) => {
-    const user = await signUpWithEmail(email, password);
+export const selectIsLogin = (state: RootState) => !!state.auth.user;
+
+const signUp = createAsyncThunk('auth/signUp', async ({ email, password }: { email: string; password: string }) => {
+    const user = await authService.signUpWithEmail(email, password);
+    // Відправка користувача на сторінку підтвердження email
+    if (!user.emailVerified) {
+        throw new Error('Please verify your email before proceeding.');
+    }
     return user;
 });
 
-export const login = createAsyncThunk('auth/login', async ({ email, password }: { email: string; password: string }) => {
-    const user = await loginWithEmail(email, password);
-    return user;
+const login = createAsyncThunk('auth/login', ({ email, password }: { email: string; password: string }) => {
+    return authService.loginWithEmail(email, password);
 });
 
-export const loginGoogle = createAsyncThunk('auth/loginGoogle', async () => {
-    const user = await loginWithGoogle();
-    return user;
+const loginGoogle = createAsyncThunk('auth/loginGoogle', () => {
+    return authService.loginWithGoogle();
 });
 
-export const logoutUser = createAsyncThunk('auth/logout', async () => {
-    await logout();
+const logoutUser = createAsyncThunk('auth/logout', () => {
+    return authService.logout();
+});
+
+const forgotPassword = createAsyncThunk('auth/forgotPassword', (email: string) => {
+    return authService.sendPasswordResetEmail(email);
 });
 
 const authSlice = createSlice({
@@ -74,8 +84,32 @@ const authSlice = createSlice({
             .addCase(logoutUser.fulfilled, (state) => {
                 state.user = null;
                 state.status = 'idle';
+            })
+            .addCase(forgotPassword.pending, (state) => {
+                state.status = 'loading';
+            })
+            .addCase(forgotPassword.fulfilled, (state) => {
+                state.status = 'succeeded';
+            })
+            .addCase(forgotPassword.rejected, (state, action) => {
+                state.status = 'failed';
+                state.error = action.error.message || null;
             });
     },
 });
 
-export default authSlice.reducer;
+const { reducer: authReducer, actions } = authSlice;
+
+const authActions = {
+    ...actions,
+    signUp,
+    login,
+    loginGoogle,
+    logoutUser,
+    forgotPassword
+}
+
+export {
+    authReducer,
+    authActions,
+};

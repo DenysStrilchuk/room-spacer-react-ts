@@ -1,7 +1,9 @@
+import {ForgotPassword} from "../components/AuthContainer/ForgotPasswordContainer";
+
 const ForgotPasswordPage = () => {
     return (
         <div>
-            ForgotPasswordPage
+            <ForgotPassword/>
         </div>
     );
 };

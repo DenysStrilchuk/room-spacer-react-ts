@@ -1,7 +1,9 @@
+import {Registration} from "../components/AuthContainer/RegisterContainer";
+
 const RegisterPage = () => {
     return (
         <div>
-            RegisterPage
+            <Registration/>
         </div>
     );
 };

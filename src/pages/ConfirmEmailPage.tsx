@@ -1,7 +1,9 @@
+import {EmailConfirmation} from "../components/AuthContainer/ConfirmEmailContainer";
+
 const ConfirmEmailPage = () => {
     return (
         <div>
-            ConfirmEmailPage
+            <EmailConfirmation/>
         </div>
     );
 };
