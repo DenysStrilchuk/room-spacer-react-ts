@@ -56,7 +56,8 @@ const authService = {
             const email = user.email;
 
             if (!email) {
-                throw new Error('Google account does not have an email address associated.');
+                console.error('Google account does not have an email address associated.');
+                return null;
             }
 
             const userExists = await authService.checkIfUserExistsInFirestore(email);
@@ -64,7 +65,8 @@ const authService = {
             if (!userExists) {
                 // Remove the user from Firebase Authentication if they don't exist in Firestore
                 await user.delete();
-                throw new Error('User not registered. Please sign up first.');
+                console.error('User not registered. Please sign up first.');
+                return null;
             }
 
             // Check if user exists in Firestore
@@ -75,7 +77,8 @@ const authService = {
                 // User exists, continue with sign-in
                 return result;
             } else {
-                throw new Error('User not registered. Please sign up first.');
+                console.error('User not registered. Please sign up first.');
+                return null;
             }
         } catch (error) {
             // Log the error and return null
