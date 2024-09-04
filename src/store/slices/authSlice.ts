@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { RootState } from "../../types/reduxType";
-import {IUser} from "../../intterfaces/userInterface";
-import {authService} from "../../services";
+import { IUser } from "../../intterfaces/userInterface";
+import { authService } from "../../services";
 
 export interface AuthState {
     user: IUser | null;
@@ -14,7 +14,7 @@ const initialState: AuthState = {
     user: null,
     status: 'idle',
     error: null,
-    isRegistered: false,  // Параметр для перевірки реєстрації
+    isRegistered: false,
 };
 
 // Селектори
@@ -53,7 +53,7 @@ const login = createAsyncThunk(
 );
 
 const checkIfRegistered = createAsyncThunk('auth/checkIfRegistered', async (email: string) => {
-    return await authService.checkIfRegistered(email); // Логіка перевірки реєстрації
+    return await authService.checkIfRegistered(email);
 });
 
 const loginGoogle = createAsyncThunk(
@@ -157,7 +157,7 @@ const authActions = {
     loginGoogle,
     logoutUser,
     forgotPassword,
-    checkIfRegistered,  // Додали екшен для перевірки реєстрації
+    checkIfRegistered,
 };
 
 export {

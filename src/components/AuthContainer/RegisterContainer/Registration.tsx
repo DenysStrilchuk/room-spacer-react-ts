@@ -10,6 +10,7 @@ import { authActions, selectIsRegistered } from "../../../store";
 import { RootState } from "../../../types/reduxType";
 import {registrationSchema} from "../../../validators/validationSchema";
 
+
 interface IFormErrors {
     name?: string;
     email?: string;
@@ -32,7 +33,7 @@ const Registration: React.FC = () => {
     const [showConfirmationMessage, setShowConfirmationMessage] = useState(false);
     const [agreeToTerms, setAgreeToTerms] = useState(false);
     const navigate = useNavigate();
-    const [registrationType, setRegistrationType] = useState<'normal' | 'google'>('normal');
+    const [registrationType] = useState<'normal' | 'google'>('normal');
     const [loading, setLoading] = useState(false);
     const [googleLoading, setGoogleLoading] = useState(false);
 
@@ -98,8 +99,7 @@ const Registration: React.FC = () => {
         try {
             const user = await dispatch(authActions.loginGoogle()).unwrap();
             if (user) {
-                setRegistrationType('google');
-                setShowConfirmationMessage(true);
+                navigate(`/group/${user.uid}`); // Перенаправлення на сторінку з `uid`
             } else {
                 setFormErrors({ global: 'Google registration failed' });
             }

@@ -15,7 +15,7 @@ const Login: React.FC = () => {
     const dispatch = useAppDispatch();
     const navigate = useNavigate();
     const isLogin = useSelector(selectIsLogin);
-    const { error } = useSelector((state: RootState) => state.auth);
+    const { error, user } = useSelector((state: RootState) => state.auth); // Виносимо `useSelector` на верхній рівень компонента
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
@@ -39,12 +39,13 @@ const Login: React.FC = () => {
         }
     };
 
-
     const handleGoogleLogin = async () => {
         setLoadingGoogle(true);
         try {
             const user = await dispatch(authActions.loginGoogle()).unwrap();
-            if (!user) {
+            if (user) {
+                navigate(`/group/${user.uid}`); // Перенаправлення на сторінку з `uid`
+            } else {
                 setGoogleLoginError('User not found. Please register first.');
             }
         } catch (error) {
@@ -63,10 +64,10 @@ const Login: React.FC = () => {
     };
 
     useEffect(() => {
-        if (isLogin) {
-            navigate('/group/:id');
+        if (isLogin && user?.uid) {
+            navigate(`/group/${user.uid}`);
         }
-    }, [isLogin, navigate]);
+    }, [isLogin, user?.uid, navigate]); // Тепер user передається через залежності
 
     return (
         <div className={css.loginContainer}>
@@ -155,3 +156,4 @@ const Login: React.FC = () => {
 export {
     Login
 };
+

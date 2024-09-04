@@ -46,7 +46,7 @@ const authService = {
             await setDoc(userDoc, {
                 email: result.user.email,
                 name: result.user.displayName,  // Використовуємо ім'я з Google
-                role: 'User',
+                role: 'Owner',
             });
         }
 
