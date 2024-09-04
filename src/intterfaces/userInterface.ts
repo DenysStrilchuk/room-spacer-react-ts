@@ -5,6 +5,7 @@ export interface IUser {
     position?: string;
     rooms?: string;
     picture?: string;
+    emailVerified?: boolean;
     createdAt?: Date;
     updatedAt?: Date;
 }

@@ -39,6 +39,12 @@ const login = createAsyncThunk(
         if (!user.email) {
             throw new Error('Email is null');
         }
+
+        // Check email verification status before returning
+        if (!user.emailVerified) {
+            throw new Error('Please verify your email before logging in.');
+        }
+
         return {
             uid: user.uid,
             email: user.email,

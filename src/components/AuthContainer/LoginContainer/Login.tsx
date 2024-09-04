@@ -9,6 +9,7 @@ import { faEnvelope, faLock, faEye, faEyeSlash } from '@fortawesome/free-solid-s
 import { ClipLoader } from 'react-spinners';
 import css from './Login.module.css';
 import { RootState } from "../../../types/reduxType";
+import {IUser} from "../../../intterfaces/userInterface";
 
 const Login: React.FC = () => {
     const dispatch = useAppDispatch();
@@ -26,13 +27,18 @@ const Login: React.FC = () => {
         e.preventDefault();
         setLoadingEmail(true);
         try {
-            await dispatch(authActions.login({ email, password })).unwrap();
+            const user: IUser = await dispatch(authActions.login({ email, password })).unwrap();
+
+            if (user) {
+                navigate(`/group/${user.uid}`);
+            }
         } catch (error) {
             console.error(error);
         } finally {
             setLoadingEmail(false);
         }
     };
+
 
     const handleGoogleLogin = async () => {
         setLoadingGoogle(true);
