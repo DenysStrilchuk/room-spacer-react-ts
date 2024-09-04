@@ -7,7 +7,10 @@ import {
     signOut,
     sendPasswordResetEmail as firebaseSendPasswordResetEmail,
     sendEmailVerification,
-    UserCredential
+    UserCredential,
+    setPersistence,
+    browserSessionPersistence,
+    browserLocalPersistence
 } from 'firebase/auth';
 import {
     setDoc,
@@ -20,6 +23,14 @@ import {
 } from 'firebase/firestore';
 
 const authService = {
+    setAuthPersistence: async (persistenceType: 'session' | 'local' = 'local') => {
+        const persistence = persistenceType === 'local'
+            ? browserLocalPersistence
+            : browserSessionPersistence;
+
+        await setPersistence(auth, persistence);
+    },
+
     signUpWithEmail: async (email: string, password: string, name: string) => {
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         await sendEmailVerification(userCredential.user); // Відправка email підтвердження
@@ -35,7 +46,8 @@ const authService = {
         return userCredential.user;
     },
 
-    loginWithEmail: (email: string, password: string) => {
+    loginWithEmail: async (email: string, password: string) => {
+        await authService.setAuthPersistence();
         return signInWithEmailAndPassword(auth, email, password);
     },
 
@@ -49,6 +61,9 @@ const authService = {
 
     loginWithGoogle: async (): Promise<UserCredential | null> => {
         try {
+            // Встановлюємо persistence для автентифікації
+            await authService.setAuthPersistence();
+
             const provider = new GoogleAuthProvider();
             const result = await signInWithPopup(auth, provider);
 
@@ -63,25 +78,25 @@ const authService = {
             const userExists = await authService.checkIfUserExistsInFirestore(email);
 
             if (!userExists) {
-                // Remove the user from Firebase Authentication if they don't exist in Firestore
+                // Видаляємо користувача з Firebase Authentication, якщо він не зареєстрований у Firestore
                 await user.delete();
                 console.error('User not registered. Please sign up first.');
                 return null;
             }
 
-            // Check if user exists in Firestore
+            // Перевіряємо, чи існує користувач у Firestore
             const userDoc = doc(db, 'users', user.uid);
             const userSnapshot = await getDoc(userDoc);
 
             if (userSnapshot.exists()) {
-                // User exists, continue with sign-in
+                // Користувач існує, продовжуємо вхід
                 return result;
             } else {
                 console.error('User not registered. Please sign up first.');
                 return null;
             }
         } catch (error) {
-            // Log the error and return null
+            // Логування помилки та повернення null
             console.error('Google login error:', (error as Error).message || String(error));
             return null;
         }

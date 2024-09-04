@@ -3,27 +3,40 @@ import css from './ForgotPassword.module.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEnvelope } from '@fortawesome/free-solid-svg-icons';
 import { ClipLoader } from 'react-spinners';
-import {authActions} from "../../../store";
-import {useAppDispatch} from "../../../hooks/reduxHooks";
+import { authActions } from "../../../store";
+import { useAppDispatch } from "../../../hooks/reduxHooks";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { useNavigate } from 'react-router-dom';
 
 const ForgotPassword = () => {
     const dispatch = useAppDispatch();
+    const navigate = useNavigate();
     const [email, setEmail] = useState('');
     const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
-    const [message, setMessage] = useState('');
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setStatus('loading');
-        setMessage('');
 
         try {
-            await dispatch(authActions.forgotPassword(email)).unwrap();  // Передаємо тільки рядок email
+            const isRegistered = await dispatch(authActions.checkIfRegistered(email)).unwrap();
+
+            if (!isRegistered) {
+                setStatus('error');
+                toast.error('Email not registered in our system.');
+                return;
+            }
+
+            await dispatch(authActions.forgotPassword(email)).unwrap();
             setStatus('success');
-            setMessage('A password reset link has been sent to your email.');
+            toast.success('A password reset link has been sent to your email.');
+            setTimeout(() => {
+                navigate('/auth/login');
+            }, 2000); // Redirect after 2 seconds
         } catch (error: any) {
             setStatus('error');
-            setMessage(error?.message || 'An error occurred. Please try again.');
+            toast.error(error?.message || 'An error occurred. Please try again.');
         }
     };
 
@@ -56,18 +69,8 @@ const ForgotPassword = () => {
                         'Send a link'
                     )}
                 </button>
-                {message && (
-                    <p
-                        className={
-                            status === 'success'
-                                ? css.successMessage
-                                : css.errorMessage
-                        }
-                    >
-                        {message}
-                    </p>
-                )}
             </form>
+            <ToastContainer />
         </div>
     );
 };

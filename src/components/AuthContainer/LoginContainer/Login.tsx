@@ -1,4 +1,3 @@
-// components/Login.tsx
 import React, { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { authActions, selectIsLogin } from '../../../store';
@@ -9,13 +8,15 @@ import { faEnvelope, faLock, faEye, faEyeSlash } from '@fortawesome/free-solid-s
 import { ClipLoader } from 'react-spinners';
 import css from './Login.module.css';
 import { RootState } from "../../../types/reduxType";
-import {IUser} from "../../../intterfaces/userInterface";
+import { useAuthListener } from "../../../hooks/useAuthListener";
+import { IUser } from "../../../intterfaces/userInterface";
 
 const Login: React.FC = () => {
     const dispatch = useAppDispatch();
     const navigate = useNavigate();
     const isLogin = useSelector(selectIsLogin);
-    const { error, user } = useSelector((state: RootState) => state.auth); // Виносимо `useSelector` на верхній рівень компонента
+    const isLoading = useAuthListener(); // Використовуємо стан завантаження
+    const { error, user } = useSelector((state: RootState) => state.auth); // Get auth state from the store
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
@@ -28,7 +29,6 @@ const Login: React.FC = () => {
         setLoadingEmail(true);
         try {
             const user: IUser = await dispatch(authActions.login({ email, password })).unwrap();
-
             if (user) {
                 navigate(`/group/${user.uid}`);
             }
@@ -44,7 +44,7 @@ const Login: React.FC = () => {
         try {
             const user = await dispatch(authActions.loginGoogle()).unwrap();
             if (user) {
-                navigate(`/group/${user.uid}`); // Перенаправлення на сторінку з `uid`
+                navigate(`/group/${user.uid}`); // Redirect to group page
             } else {
                 setGoogleLoginError('User not found. Please register first.');
             }
@@ -59,16 +59,19 @@ const Login: React.FC = () => {
         }
     };
 
-
     const handleForgotPassword = () => {
         navigate('/auth/recovery');
     };
 
     useEffect(() => {
-        if (isLogin && user?.uid) {
+        if (!isLoading && isLogin && user?.uid) {
             navigate(`/group/${user.uid}`);
         }
-    }, [isLogin, user?.uid, navigate]); // Тепер user передається через залежності
+    }, [isLoading, isLogin, user?.uid, navigate]); // Ensure user navigation after login
+
+    if (isLoading) {
+        return <ClipLoader size={50} color={"#ffffff"} loading={true} />;
+    }
 
     return (
         <div className={css.loginContainer}>
@@ -157,4 +160,3 @@ const Login: React.FC = () => {
 export {
     Login
 };
-

@@ -53,7 +53,7 @@ const login = createAsyncThunk(
 );
 
 const checkIfRegistered = createAsyncThunk('auth/checkIfRegistered', async (email: string) => {
-    return await authService.checkIfRegistered(email);
+    return await authService.checkIfUserExistsInFirestore(email);
 });
 
 const loginGoogle = createAsyncThunk(
@@ -116,7 +116,16 @@ const forgotPassword = createAsyncThunk('auth/forgotPassword', (email: string) =
 const authSlice = createSlice({
     name: 'auth',
     initialState,
-    reducers: {},
+    reducers: {
+        setUser: (state, action) => {
+            state.user = action.payload;
+            state.status = 'succeeded';
+        },
+        logoutUser: (state) => {
+            state.user = null;
+            state.status = 'idle';
+        }
+    },
     extraReducers: (builder) => {
         builder
             // signUp
