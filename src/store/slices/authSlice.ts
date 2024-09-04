@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { authService } from "../../services/authService";
 import { RootState } from "../../types/reduxType";
 import {IUser} from "../../intterfaces/userInterface";
+import {authService} from "../../services";
 
 export interface AuthState {
     user: IUser | null;

@@ -44,9 +44,11 @@ const Registration: React.FC = () => {
         if (error) {
             const newErrors: IFormErrors = {};
             error.details.forEach((err) => {
-                const key = err.path[0] as string; // Cast to string
-                if (key in newErrors) { // Ensure the key exists in IFormErrors
+                const key = err.path[0] as string; // Перетворення до рядка
+                if (['name', 'email', 'password', 'confirmPassword', 'agreeToTerms'].includes(key)) {
                     newErrors[key as keyof IFormErrors] = err.message;
+                } else {
+                    newErrors.global = err.message;
                 }
             });
             return newErrors;
@@ -69,8 +71,10 @@ const Registration: React.FC = () => {
             if (isAlreadyRegistered) {
                 setFormErrors({ global: 'This email is already registered.' });
             } else {
-                await dispatch(authActions.signUp({ email, password, name })).unwrap();
-                setShowConfirmationMessage(true);
+                const user = await dispatch(authActions.signUp({ email, password, name })).unwrap();
+                if (user) {
+                    setShowConfirmationMessage(true);
+                }
             }
         } catch (err: any) {
             if (err.message === 'Please verify your email before proceeding.') {
@@ -85,6 +89,11 @@ const Registration: React.FC = () => {
     };
 
     const handleGoogleSignUp = async () => {
+        if (!agreeToTerms) {
+            setFormErrors({ global: 'You must agree to the terms before signing up.' });
+            return;
+        }
+
         setGoogleLoading(true);
         try {
             const user = await dispatch(authActions.loginGoogle()).unwrap();
