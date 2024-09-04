@@ -12,7 +12,11 @@ import {
 import {
     setDoc,
     doc,
-    getDoc
+    getDoc,
+    collection,
+    query,
+    where,
+    getDocs
 } from 'firebase/firestore';
 
 const authService = {
@@ -35,18 +39,48 @@ const authService = {
         return signInWithEmailAndPassword(auth, email, password);
     },
 
-    loginWithGoogle: async (): Promise<UserCredential | null>  => {
-        const provider = new GoogleAuthProvider();
-        const result = await signInWithPopup(auth, provider);
-        const userDoc = doc(db, 'users', result.user.uid);
-        const userSnapshot = await getDoc(userDoc);
+    checkIfUserExistsInFirestore: async (email: string): Promise<boolean> => {
+        const usersRef = collection(db, 'users');
+        const q = query(usersRef, where('email', '==', email));
+        const querySnapshot = await getDocs(q);
 
-        if (userSnapshot.exists()) {
-            // Користувач вже існує, продовжуємо процес аутентифікації
-            return result;
-        } else {
-            // Якщо користувача немає в Firestore, повертаємо null або кидаємо помилку
-            throw new Error('User not registered. Please sign up first.');
+        return !querySnapshot.empty;
+    },
+
+    loginWithGoogle: async (): Promise<UserCredential | null> => {
+        try {
+            const provider = new GoogleAuthProvider();
+            const result = await signInWithPopup(auth, provider);
+
+            const user = result.user;
+            const email = user.email;
+
+            if (!email) {
+                throw new Error('Google account does not have an email address associated.');
+            }
+
+            const userExists = await authService.checkIfUserExistsInFirestore(email);
+
+            if (!userExists) {
+                // Remove the user from Firebase Authentication if they don't exist in Firestore
+                await user.delete();
+                throw new Error('User not registered. Please sign up first.');
+            }
+
+            // Check if user exists in Firestore
+            const userDoc = doc(db, 'users', user.uid);
+            const userSnapshot = await getDoc(userDoc);
+
+            if (userSnapshot.exists()) {
+                // User exists, continue with sign-in
+                return result;
+            } else {
+                throw new Error('User not registered. Please sign up first.');
+            }
+        } catch (error) {
+            // Log the error and return null
+            console.error('Google login error:', (error as Error).message || String(error));
+            return null;
         }
     },
 
