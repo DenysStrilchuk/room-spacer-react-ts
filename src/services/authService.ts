@@ -35,20 +35,32 @@ const authService = {
         return signInWithEmailAndPassword(auth, email, password);
     },
 
-    loginWithGoogle: async (): Promise<UserCredential>  => {
+    loginWithGoogle: async (): Promise<UserCredential | null>  => {
         const provider = new GoogleAuthProvider();
         const result = await signInWithPopup(auth, provider);
         const userDoc = doc(db, 'users', result.user.uid);
         const userSnapshot = await getDoc(userDoc);
 
-        if (!userSnapshot.exists()) {
-            // Якщо користувач новий, зберігаємо ім'я та email в Firestore
-            await setDoc(userDoc, {
-                email: result.user.email,
-                name: result.user.displayName,  // Використовуємо ім'я з Google
-                role: 'Owner',
-            });
+        if (userSnapshot.exists()) {
+            // Користувач вже існує, продовжуємо процес аутентифікації
+            return result;
+        } else {
+            // Якщо користувача немає в Firestore, повертаємо null або кидаємо помилку
+            throw new Error('User not registered. Please sign up first.');
         }
+    },
+
+    registerWithGoogle: async (): Promise<UserCredential | null> => {
+        const provider = new GoogleAuthProvider();
+        const result = await signInWithPopup(auth, provider);
+        const userDoc = doc(db, 'users', result.user.uid);
+
+        // Створюємо запис користувача у Firestore
+        await setDoc(userDoc, {
+            email: result.user.email,
+            name: result.user.displayName,
+            role: 'Owner',
+        });
 
         return result;
     },

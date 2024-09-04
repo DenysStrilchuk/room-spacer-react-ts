@@ -59,6 +59,7 @@ const Login: React.FC = () => {
         }
     };
 
+
     const handleForgotPassword = () => {
         navigate('/auth/recovery');
     };

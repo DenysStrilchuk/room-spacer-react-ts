@@ -100,9 +100,9 @@ const Registration: React.FC = () => {
 
         setGoogleLoading(true);
         try {
-            const user = await dispatch(authActions.loginGoogle()).unwrap();
+            const user = await dispatch(authActions.registerWithGoogleAction()).unwrap();
             if (user) {
-                navigate(`/group/${user.uid}`); // Перенаправлення на сторінку з `uid`
+                navigate(`/group/${user.uid}`);
             } else {
                 setFormErrors({ global: 'Google registration failed' });
             }

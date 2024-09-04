@@ -58,13 +58,49 @@ const checkIfRegistered = createAsyncThunk('auth/checkIfRegistered', async (emai
 
 const loginGoogle = createAsyncThunk(
     'auth/loginGoogle',
-    async (): Promise<IUser> => {
-        const userCredential = await authService.loginWithGoogle();
-        const user = userCredential.user;
-        return {
-            uid: user.uid,
-            email: user.email,
-        };
+    async (_, { rejectWithValue }): Promise<IUser | null> => {
+        try {
+            const userCredential = await authService.loginWithGoogle();
+            if (userCredential && userCredential.user) {
+                const user = userCredential.user;
+                return {
+                    uid: user.uid,
+                    email: user.email,
+                };
+            } else {
+                return rejectWithValue('User credential is null') as never;
+            }
+        } catch (error) {
+            if (error instanceof Error) {
+                return rejectWithValue(error.message) as never;
+            }
+            return rejectWithValue('An unknown error occurred') as never;
+        }
+    }
+);
+
+const registerWithGoogleAction = createAsyncThunk<IUser | null, void, { rejectValue: string }>(
+    'auth/registerWithGoogle',
+    async (_, { rejectWithValue }) => {
+        try {
+            const result = await authService.registerWithGoogle();
+            // Перетворюємо UserCredential на IUser
+            if (result && result.user) {
+                const user = result.user;
+                return {
+                    uid: user.uid,
+                    email: user.email || '',
+                };
+            } else {
+                return rejectWithValue('User credential is null');
+            }
+        } catch (error) {
+            if (error instanceof Error) {
+                return rejectWithValue(error.message);
+            } else {
+                return rejectWithValue('An unknown error occurred');
+            }
+        }
     }
 );
 
@@ -143,6 +179,18 @@ const authSlice = createSlice({
             .addCase(checkIfRegistered.rejected, (state, action) => {
                 state.isRegistered = false;
                 state.error = action.error.message || null;
+            })
+            .addCase(registerWithGoogleAction.pending, (state) => {
+                state.status = 'loading';
+                state.error = null;
+            })
+            .addCase(registerWithGoogleAction.fulfilled, (state, action) => {
+                state.status = 'succeeded';
+                state.user = action.payload;
+            })
+            .addCase(registerWithGoogleAction.rejected, (state, action) => {
+                state.status = 'failed';
+                state.error = action.payload as string | null;
             });
     },
 });
@@ -158,6 +206,7 @@ const authActions = {
     logoutUser,
     forgotPassword,
     checkIfRegistered,
+    registerWithGoogleAction,
 };
 
 export {
