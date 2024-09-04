@@ -102,7 +102,16 @@ const Registration: React.FC = () => {
         try {
             const user = await dispatch(authActions.registerWithGoogleAction()).unwrap();
             if (user) {
-                navigate(`/group/${user.uid}`);
+                toast.success('Google registration successful!', {
+                    position: "top-right",
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                    onClose: () => navigate(`/group/${user.uid}`) // Перенаправлення після закриття сповіщення
+                });
             } else {
                 setFormErrors({ global: 'Google registration failed' });
             }
