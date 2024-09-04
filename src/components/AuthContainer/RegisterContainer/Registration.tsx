@@ -9,6 +9,9 @@ import { ClipLoader } from 'react-spinners';
 import { authActions, selectIsRegistered } from "../../../store";
 import { RootState } from "../../../types/reduxType";
 import {registrationSchema} from "../../../validators/validationSchema";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 
 
 interface IFormErrors {
@@ -33,7 +36,6 @@ const Registration: React.FC = () => {
     const [showConfirmationMessage, setShowConfirmationMessage] = useState(false);
     const [agreeToTerms, setAgreeToTerms] = useState(false);
     const navigate = useNavigate();
-    const [registrationType] = useState<'normal' | 'google'>('normal');
     const [loading, setLoading] = useState(false);
     const [googleLoading, setGoogleLoading] = useState(false);
 
@@ -74,6 +76,7 @@ const Registration: React.FC = () => {
             } else {
                 const user = await dispatch(authActions.signUp({ email, password, name })).unwrap();
                 if (user) {
+                    toast.success('Registration Successful! Please check your email to confirm.');
                     setShowConfirmationMessage(true);
                 }
             }
@@ -109,11 +112,6 @@ const Registration: React.FC = () => {
         } finally {
             setGoogleLoading(false);
         }
-    };
-
-    const handleCloseModal = () => {
-        setShowConfirmationMessage(false);
-        navigate('/auth/login');
     };
 
     useEffect(() => {
@@ -251,20 +249,17 @@ const Registration: React.FC = () => {
                 </div>
             </form>
 
+            <ToastContainer />
             {showConfirmationMessage && (
-                <div className={css.modal}>
-                    <div className={css.modalContent}>
-                        <h2>Registration Successful</h2>
-                        {registrationType === 'normal' ? (
-                            <p>Please check your email to confirm your registration.</p>
-                        ) : (
-                            <p>You have successfully registered with Google. You can now log in.</p>
-                        )}
-                        <button className={css.closeModalButton} onClick={handleCloseModal}>
-                            Close
-                        </button>
-                    </div>
-                </div>
+                toast.success('Registration Successful! Please check your email to confirm.', {
+                    position: "top-right",
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                })
             )}
         </div>
     );
